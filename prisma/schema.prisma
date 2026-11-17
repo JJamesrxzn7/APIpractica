@@ -1,0 +1,21 @@
+// Prisma schema file
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Producto {
+  id_producto      String  @id @db.Char(10)
+  id_categoria     String  @db.Char(10)
+  pro_descripcion  String  @db.Char(40)
+  pro_precio_venta Decimal @db.Decimal(7, 2)
+
+  @@map("productos")
+}
+

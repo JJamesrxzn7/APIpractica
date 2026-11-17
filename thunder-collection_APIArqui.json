@@ -1,0 +1,72 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "APIArqui",
+  "dateExported": "2026-11-10T15:30:00.000Z",
+  "version": "1.2",
+  "folders": [],
+  "requests": [
+    {
+      "_id": "a0000001", "colId": "apiarqui", "containerId": "", "name": "GET lista (limit 5)", "method": "GET",
+      "url": "http://localhost:3000/api/Productos?page=1&limit=5", "sortNum": 10000,
+      "headers": [{ "name": "Authorization", "value": "Bearer secreto123" }],
+      "tests": [{ "type": "res-code", "custom": "", "action": "equal", "value": "200" }]
+    },
+    {
+      "_id": "a0000002", "colId": "apiarqui", "containerId": "", "name": "GET lista (limit 500 -> max 100)", "method": "GET",
+      "url": "http://localhost:3000/api/Productos?limit=500", "sortNum": 20000,
+      "headers": [{ "name": "Authorization", "value": "Bearer secreto123" }],
+      "tests": [{ "type": "json-query", "custom": "json.pagination.limit", "action": "equal", "value": "100" }]
+    },
+    {
+      "_id": "a0000003", "colId": "apiarqui", "containerId": "", "name": "GET por id", "method": "GET",
+      "url": "http://localhost:3000/api/Productos/PRO0000001", "sortNum": 30000,
+      "headers": [{ "name": "Authorization", "value": "Bearer secreto123" }],
+      "tests": [{ "type": "res-code", "custom": "", "action": "equal", "value": "200" }]
+    },
+    {
+      "_id": "a0000004", "colId": "apiarqui", "containerId": "", "name": "GET id inexistente (404)", "method": "GET",
+      "url": "http://localhost:3000/api/Productos/NOEXISTE", "sortNum": 40000,
+      "headers": [{ "name": "Authorization", "value": "Bearer secreto123" }],
+      "tests": [{ "type": "res-code", "custom": "", "action": "equal", "value": "404" }]
+    },
+    {
+      "_id": "a0000005", "colId": "apiarqui", "containerId": "", "name": "GET sin token (401)", "method": "GET",
+      "url": "http://localhost:3000/api/Productos", "sortNum": 50000, "headers": [],
+      "tests": [{ "type": "res-code", "custom": "", "action": "equal", "value": "401" }]
+    },
+    {
+      "_id": "a0000006", "colId": "apiarqui", "containerId": "", "name": "POST crear (201)", "method": "POST",
+      "url": "http://localhost:3000/api/Productos", "sortNum": 60000,
+      "headers": [{ "name": "Authorization", "value": "Bearer secreto123" }, { "name": "Content-Type", "value": "application/json" }],
+      "body": { "type": "json", "raw": "{\n  \"id_producto\": \"TEST000001\",\n  \"id_categoria\": \"Bebidas\",\n  \"pro_descripcion\": \"Producto de prueba\",\n  \"pro_precio_venta\": 2.5\n}", "form": [] },
+      "tests": [{ "type": "res-code", "custom": "", "action": "equal", "value": "201" }]
+    },
+    {
+      "_id": "a0000007", "colId": "apiarqui", "containerId": "", "name": "POST invalido (400)", "method": "POST",
+      "url": "http://localhost:3000/api/Productos", "sortNum": 70000,
+      "headers": [{ "name": "Authorization", "value": "Bearer secreto123" }, { "name": "Content-Type", "value": "application/json" }],
+      "body": { "type": "json", "raw": "{\n  \"id_producto\": \"TEST000002\",\n  \"pro_precio_venta\": \"abc\"\n}", "form": [] },
+      "tests": [{ "type": "res-code", "custom": "", "action": "equal", "value": "400" }]
+    },
+    {
+      "_id": "a0000008", "colId": "apiarqui", "colId2": "", "containerId": "", "name": "PUT actualizar completo", "method": "PUT",
+      "url": "http://localhost:3000/api/Productos/TEST000001", "sortNum": 80000,
+      "headers": [{ "name": "Authorization", "value": "Bearer secreto123" }, { "name": "Content-Type", "value": "application/json" }],
+      "body": { "type": "json", "raw": "{\n  \"id_categoria\": \"Snacks\",\n  \"pro_descripcion\": \"Producto de prueba editado\",\n  \"pro_precio_venta\": 3.75\n}", "form": [] },
+      "tests": [{ "type": "res-code", "custom": "", "action": "equal", "value": "200" }]
+    },
+    {
+      "_id": "a0000009", "colId": "apiarqui", "containerId": "", "name": "PATCH actualizar parcial", "method": "PATCH",
+      "url": "http://localhost:3000/api/Productos/TEST000001", "sortNum": 90000,
+      "headers": [{ "name": "Authorization", "value": "Bearer secreto123" }, { "name": "Content-Type", "value": "application/json" }],
+      "body": { "type": "json", "raw": "{\n  \"pro_precio_venta\": 4.99\n}", "form": [] },
+      "tests": [{ "type": "res-code", "custom": "", "action": "equal", "value": "200" }]
+    },
+    {
+      "_id": "a0000010", "colId": "apiarqui", "containerId": "", "name": "DELETE eliminar", "method": "DELETE",
+      "url": "http://localhost:3000/api/Productos/TEST000001", "sortNum": 100000,
+      "headers": [{ "name": "Authorization", "value": "Bearer secreto123" }],
+      "tests": [{ "type": "res-code", "custom": "", "action": "equal", "value": "200" }]
+    }
+  ]
+}
