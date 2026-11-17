@@ -4,7 +4,10 @@
   "description": "API REST N-capas con Express y PostgreSQL",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test test/**/*.test.js",
+    "lint": "eslint . && prettier --check \"src/**/*.js\" \"test/**/*.js\"",
+    "format": "prettier --write \"src/**/*.js\" \"test/**/*.js\""
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -17,6 +20,10 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "prisma": "^6.19.3"
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.10.1",
+    "prisma": "^6.19.3",
+    "supertest": "^7.3.2"
   }
 }

@@ -1,0 +1,114 @@
+name: CI/CD Pipeline - APIArqui
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # ==========================================
+  # FASE 1: INTEGRACIÓN CONTINUA (CI)
+  # ==========================================
+  ci:
+    name: Continuous Integration (Validations & Tests)
+    runs-on: ubuntu-latest
+
+    # Contenedor de servicio PostgreSQL para pruebas de integración de API
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      PORT: 3000
+      API_TOKEN: secreto123
+      DATABASE_URL: "postgresql://postgres:postgrespassword@localhost:5432/test_db?schema=public"
+
+    steps:
+      # 1. Checkout del código fuente
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Configuración del entorno Node.js
+      - name: Setup Node.js v24.20.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.20.0'
+          cache: 'npm'
+
+      # 3. Instalación limpia de dependencias
+      - name: Install Dependencies
+        run: npm ci
+
+      # 4. Generación del cliente Prisma ORM
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # 5. Linting y Verificación de Formato
+      - name: Run Linter & Format Check
+        run: npm run lint
+
+      # 6. Auditoría de Seguridad de Dependencias (SCA)
+      - name: Run Dependency Security Audit
+        run: npm audit --audit-level=high
+
+      # 7. Inicialización de CodeQL (SAST - Análisis Estático de Seguridad)
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+
+      # 8. Ejecución de Análisis CodeQL
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      # 9. Migración / Creación de Esquema en BD PostgreSQL de Prueba
+      - name: Push Schema to Test Database
+        run: npx prisma db push --skip-generate
+
+      # 10. Pruebas Unitarias y de Integración (APIs con Express y Postgres)
+      - name: Run Tests (Unit & Integration)
+        run: npm test
+
+  # ==========================================
+  # FASE 2: DESPLIEGUE CONTINUO (CD) - RENDER
+  # ==========================================
+  cd:
+    name: Continuous Deployment (Render)
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+      - name: Trigger Deploy Hook on Render
+        run: |
+          echo "Disparando despliegue hacia Render..."
+          response=$(curl -s -w "\n%{http_code}" -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Código de respuesta HTTP: $http_code"
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "Despliegue activado correctamente en Render."
+          else
+            echo "Error al disparar despliegue en Render (HTTP $http_code): $body"
+            exit 1
+          fi
+
+      - name: Deployment Notification
+        run: |
+          echo "=========================================================="
+          echo " El pipeline ha finalizado con éxito."
+          echo " El servicio en Render se está compilando e implementando."
+          echo "=========================================================="

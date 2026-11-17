@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 
 // PATRON SINGLETON: una unica instancia de PrismaClient en toda la app.
 class Database {
